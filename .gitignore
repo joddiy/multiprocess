@@ -1,0 +1,8 @@
+.coveralls.yml
+.idea
+*.pyc
+.DS_Store
+_build
+.vscode
+.env
+git.sh

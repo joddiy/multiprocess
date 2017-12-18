@@ -1,5 +1,7 @@
 # Python 通用多进程模型
 
+中文请参考[这里](https://github.com/joddiy/multiprocess/tree/CN)
+
 ## 使用方法
 
 ### 调用方式

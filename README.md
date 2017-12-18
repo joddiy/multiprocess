@@ -1,32 +1,30 @@
-# Python 通用多进程模型
+# Common Multiprocess Module
 
 中文请参考[这里](https://github.com/joddiy/multiprocess/tree/CN)
 
-## 使用方法
+## Usage
 
-### 调用方式
-
-入口方法
+### Example
 
 ```python
-# 引入 多进程模型 和 消息模型
-from src.components.multiprocess.InfoTask import InfoTask
-from src.components.multiprocess.MultiProcess import MultiProcess
+# import
+from src.InfoTask import InfoTask
+from src.MultiProcess import MultiProcess
 
 if __name__ == '__main__':
-    # 实例化多进程模型（指定进程池大小）
+    # get a instance of CM module (specify the process-pool size)
     mp = MultiProcess(10)
-    # 开启多进程模型
+    # start the CM module
     mp.start()
     for i in range(10):
-        # 新建消息实例（指定任务 module，超时时间，参数）
+        # create a Task instance (specify Task module, timeout, params)
         task = InfoTask("src.components.multiprocess.example.Demo", 1, (i, i))
-        # 向进程池推送消息
+        # push Task to process-pool
         mp.push(task)
-    # 不再发送新的任务，等待所有任务退出
+    # no more new Task, wait exit
     mp.stop()
 ```
-### 任务 module
+### Task module
 需要交给进程池去完成的 module，包含三个部分：runnable，callback，error_callback
 
 ```python

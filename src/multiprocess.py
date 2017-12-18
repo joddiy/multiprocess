@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# file: 
+# file: multiprocess.py
 # author: joddiyzhang@gmail.com
 # time: 11/12/2017 5:07 PM
 # Copyright (C) <2017>  <Joddiy Zhang>
@@ -28,25 +28,25 @@ from .info_task import InfoTask
 
 class MultiProcess(object):
     """
-    通用多进程类
+    common multiprocess module
     """
     pool_num, parent_conn, child_conn, pro = None, None, None, None
 
     def __init__(self, pool_num=10):
         """
-        初始化
-        :param pool_num:进程池子容量
+        Init function
+        :param pool_num: process-pool size
         """
         self.pool_num = pool_num
 
     def start(self):
         """
-        开启一个子进程，该此子进程管理 Worker 进程池，父进程与子进程通过管道通信
-        父进程将任务发送给子进程，子进程分配给进程池进行执行
+        Start a sub-process which manages the process-pool of Worker, and connects with its parent-process by pipeline.
+        Parent-processor will send Task to sub-process which then gets a process from pool to execute it.
         :return:
         """
-        print("===> now start parent, PID:", os.getpid())
-        # 开启一个服务器进程，统一由服务器进程产生子进程，避免线程不安全
+        # print("===> now start parent, PID:", os.getpid())
+        # parent-process start a server process, and sub-process will be started by this server, avoid thread-unsafe
         # set_start_method('forkserver')
         self.parent_conn, self.child_conn = Pipe()
         self.pro = Process(target=self._start_pool, args=(self.child_conn,))
@@ -54,41 +54,42 @@ class MultiProcess(object):
 
     def push(self, task):
         """
-        向管道推送任务
+        Push Task to pipeline
         :return:
         """
         self.parent_conn.send(task)
 
     def stop(self):
         """
-        等待退出
+        Wait exit
         :return:
         """
-        # 向管道推送结束信号
+        # push exit signal to pipeline
         self.push(InfoTask(False, 1))
-        # 等待子进程退出
+        # wait sub-process exit
         self.pro.join()
-        # 关闭管道
+        # close pipeline
         self.parent_conn.close()
         self.child_conn.close()
 
     def _start_pool(self, child_conn):
         """
-        开启进程池，并通过管道和父进程通信，接受到任务之后分配给进程池执行
+        Start a process-pool, and then connect parent-process by pipeline.
+        After get a task, it will assign a worker to execute it.
         :param child_conn:
         :return:
         """
-        print("===> now start child, PID:", os.getpid())
+        # print("===> now start child, PID:", os.getpid())
         pool = multiprocessing.Pool(processes=self.pool_num)
         while True:
-            # 阻塞并接受任务
+            # hold and wait task
             info_task = child_conn.recv()
             if info_task.task_module is False:
-                # 接受到的任务方法为 False 的时候退出
+                # when receive False, exit
                 break
             else:
                 task_module = importlib.import_module(info_task.task_module)
-                # 开启 worker 执行任务
+                # start a worker
                 monitor_func = partial(self.monitor_worker, task_module.runnable, timeout=info_task.timeout)
                 pool.apply_async(monitor_func, args=info_task.args, callback=task_module.callback,
                                  error_callback=task_module.error_callback)
@@ -98,26 +99,26 @@ class MultiProcess(object):
     @staticmethod
     def monitor_worker(func, *args, **kwargs):
         """
-        worker 进程中开启一个线程执行任务，本线程监控是否超时
+        Worker process will start a thread to excute Task, and another to monitor whether it is timeout.
         :param func:
         :param args:
         :param kwargs:
         :return:
         """
-        print("===> now task get a worker, PID:", os.getpid())
+        # print("===> now task get a worker, PID:", os.getpid())
         timeout = kwargs.get('timeout', None)
-        # 开启一个线程进行监控
+        # start a thread to monitor
         p = ThreadPool(1)
         res = p.apply_async(func, args=args)
         try:
-            # 等待执行结果
+            # wait result
             out = res.get(timeout)
             return out
         except multiprocessing.TimeoutError:
-            # 超时退出
+            # exit when timeout
             p.terminate()
             raise Exception("timeout", args)
         except Exception as e:
-            # 其他异常
+            # other error
             p.terminate()
             raise Exception(str(e), args)

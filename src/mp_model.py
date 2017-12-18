@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# file: 
+# file: mp_model.py
 # author: joddiyzhang@gmail.com
 # time: 11/12/2017 6:03 PM
 # Copyright (C) <2017>  <Joddiy Zhang>
@@ -21,7 +21,7 @@
 
 def runnable(*args):
     """
-    交给worker 执行的方法
+    main function will be executed by Worker
     :param args:
     :return:
     """
@@ -30,7 +30,8 @@ def runnable(*args):
 
 def callback(*result):
     """
-    执行成功后的调用
+    callback function when success
+    PLEASE NOTE: don't raise any Exception here, otherwise the process cannot exit normally
     :param result:
     :return:
     """
@@ -39,7 +40,8 @@ def callback(*result):
 
 def error_callback(error):
     """
-    执行失败后的调用
+    callback function when fail
+    PLEASE NOTE: don't raise any Exception here, otherwise the process cannot exit normally
     :param error:
     :return:
     """

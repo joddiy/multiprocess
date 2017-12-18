@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# file: 
+# file: info_task.py
 # author: joddiyzhang@gmail.com
 # time: 11/12/2017 5:35 PM
 # Copyright (C) <2017>  <Joddiy Zhang>
@@ -22,17 +22,17 @@ import os
 
 class InfoTask(object):
     """
-    标准 Task 任务
+    common Task
     """
     from_pid, task_module, timeout, args = None, None, None, None
 
     def __init__(self, task_module, timeout, *args):
         """
-        初始化函数
-        :param task_module: task module 所在路径(eg: src.components.multiprocess.example.Demo)
-                            如果为 False 时则通知进程不再有新任务
-        :param timeout: 超时时间
-        :param args: 其他传递给对象的参数
+        init function
+        :param task_module: task module path(eg: src.components.multiprocess.example.Demo)
+                            if it is False, it means there isn't any more new Task
+        :param timeout: timeout (second)
+        :param args: other params transferred to module
         """
         self.from_pid = os.getpid()
         self.task_module = task_module

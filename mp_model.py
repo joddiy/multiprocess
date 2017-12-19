@@ -28,7 +28,7 @@ def runnable(*args):
     pass
 
 
-def callback(*result):
+def callback(result):
     """
     callback function when success
     PLEASE NOTE: don't raise any Exception here, otherwise the process cannot exit normally

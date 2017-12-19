@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# file: demo.py
+# file: example.py
 # author: joddiyzhang@gmail.com
 # time: 12/12/2017 4:19 PM
 # Copyright (C) <2017>  <Joddiy Zhang>
@@ -21,16 +21,30 @@ import os
 import random
 import time
 
+from info_task import InfoTask
+from multiprocess import MultiProcess
+
 
 def runnable(*args):
-    print("run", os.getpid(), args[0])
+    print("run pid", os.getpid(), end=", ")
+    print("get first args", args[0], end=", ")
+    print("get second args", args[1])
     time.sleep(random.uniform(0, 2))
-    return args[0], args[0]
+    return args[0], args[1]
 
 
-def callback(*result):
-    print("result ", os.getpid(), result[0])
+def callback(result):
+    print("pid", os.getpid(), "result", result[0], result[1])
 
 
 def error_callback(error):
     print("error_callback ", os.getpid(), error)
+
+
+if __name__ == '__main__':
+    mp = MultiProcess(5)
+    mp.start()
+    for i in range(10):
+        task = InfoTask("example", 1, {"test": i}, {"error": i})
+        mp.push(task)
+    mp.stop()

@@ -17,13 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # ------------------------------------------------------------------------
-import os
 import importlib
 import multiprocessing
 from functools import partial
 from multiprocessing import Pool, Pipe, Process, set_start_method
 from multiprocessing.pool import ThreadPool
-from .info_task import InfoTask
+
+from info_task import InfoTask
 
 
 class MultiProcess(object):

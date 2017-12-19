@@ -17,7 +17,7 @@ if __name__ == '__main__':
     # start the CM module
     mp.start()
     for i in range(10):
-        # create a Task instance (specify Task module, timeout, params)
+        # create a Task instance (specify Task module, timeout, args)
         task = InfoTask("src.components.multiprocess.example.Demo", 1, (i, i))
         # push Task to process-pool
         mp.push(task)

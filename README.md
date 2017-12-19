@@ -70,7 +70,7 @@ if __name__ == '__main__':
 
 ### 架构图
 
-![架构图](structure.png)
+![架构图](asset/structure.png)
 
 ### 组成部分
 

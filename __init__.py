@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# file: 
+# file: __init__.py
 # author: joddiyzhang@gmail.com
 # time: 18/12/2017 3:28 PM
 # Copyright (C) <2017>  <Joddiy Zhang>

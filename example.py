@@ -21,30 +21,54 @@ import os
 import random
 import time
 
-from info_task import InfoTask
-from multiprocess import MultiProcess
+from multiprocess import MultiProcess, InfoTask, Model
 
 
-def runnable(*args):
-    print("run pid", os.getpid(), end=", ")
-    print("get first args", args[0], end=", ")
-    print("get second args", args[1])
-    time.sleep(random.uniform(0, 2))
-    return args[0], args[1]
+class Demo(Model):
+    """
+    Task Model
+    """
 
+    def runnable(self, *args):
+        """
+        main function will be executed by Worker
+        :param args:
+        :return:
+        """
+        print("run pid", os.getpid(), end=", ")
+        print("get first args", args[0], end=", ")
+        print("get second args", args[1])
+        time.sleep(random.uniform(0, 2))
+        return args[0], args[1]
 
-def callback(result):
-    print("pid", os.getpid(), "result", result[0], result[1])
+    def callback(self, result):
+        """
+        callback function when success
+        PLEASE NOTE: don't raise any Exception here, otherwise the process cannot exit normally
+        :param result:
+        :return:
+        """
+        print("pid", os.getpid(), "result", result[0], result[1])
 
-
-def error_callback(error):
-    print("error_callback ", os.getpid(), error)
+    def error_callback(self, error):
+        """
+        callback function when fail
+        PLEASE NOTE: don't raise any Exception here, otherwise the process cannot exit normally
+        :param error:
+        :return:
+        """
+        print("error_callback ", os.getpid(), error)
 
 
 if __name__ == '__main__':
+    # get a instance of CM module (specify the process-pool size)
     mp = MultiProcess(5)
+    # start the CM module
     mp.start()
     for i in range(10):
-        task = InfoTask("example", 1, {"test": i}, {"error": i})
+        # create a Task instance (specify Task module, timeout, args)
+        task = InfoTask("example.Demo", 1, {"test": i}, {"error": i})
+        # push Task to process-pool
         mp.push(task)
+    # no more new Task, wait exit
     mp.stop()

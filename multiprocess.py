@@ -17,13 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # ------------------------------------------------------------------------
+import os
 import importlib
 import multiprocessing
 from functools import partial
-from multiprocessing import Pool, Pipe, Process, set_start_method
+from abc import ABCMeta, abstractmethod
 from multiprocessing.pool import ThreadPool
-
-from info_task import InfoTask
+from multiprocessing import Pool, Pipe, Process, set_start_method
 
 
 class MultiProcess(object):
@@ -88,7 +88,10 @@ class MultiProcess(object):
                 # when receive False, exit
                 break
             else:
-                task_module = importlib.import_module(info_task.task_module)
+                tmp_path = os.path.splitext(info_task.task_module)
+                module_path = importlib.import_module(tmp_path[0])
+                user_class = getattr(module_path, tmp_path[1][1:])
+                task_module = user_class()
                 # start a worker
                 monitor_func = partial(self.monitor_worker, task_module.runnable, timeout=info_task.timeout)
                 pool.apply_async(monitor_func, args=info_task.args, callback=task_module.callback,
@@ -122,3 +125,54 @@ class MultiProcess(object):
             # other error
             p.terminate()
             raise Exception(str(e), args)
+
+
+class InfoTask(object):
+    """
+    common Task
+    """
+    from_pid, task_module, timeout, args = None, None, None, None
+
+    def __init__(self, task_module, timeout, *args):
+        """
+        init function
+        :param task_module: task module path(eg: src.components.multiprocess.example.Demo)
+                            if it is False, it means there isn't any more new Task
+        :param timeout: timeout (second)
+        :param args: other params transferred to module
+        """
+        self.from_pid = os.getpid()
+        self.task_module = task_module
+        self.timeout = timeout
+        self.args = args
+
+
+class Model(metaclass=ABCMeta):
+    @abstractmethod
+    def runnable(self, *args):
+        """
+        main function will be executed by Worker
+        :param args:
+        :return:
+        """
+        pass
+
+    @abstractmethod
+    def callback(self, result):
+        """
+        callback function when success
+        PLEASE NOTE: don't raise any Exception here, otherwise the process cannot exit normally
+        :param result:
+        :return:
+        """
+        pass
+
+    @abstractmethod
+    def error_callback(self, error):
+        """
+        callback function when fail
+        PLEASE NOTE: don't raise any Exception here, otherwise the process cannot exit normally
+        :param error:
+        :return:
+        """
+        pass

@@ -7,60 +7,70 @@
 ### Example
 
 ```python
-# import
-from src.InfoTask import InfoTask
-from src.MultiProcess import MultiProcess
+import os
+import random
+import time
+
+from multiprocess import MultiProcess, InfoTask, Model
+
+
+class Demo(Model):
+    """
+    Task Model
+    """
+    
+    def runnable(self, *args):
+        """
+        main function will be executed by Worker
+        :param args:
+        :return:
+        """
+        print("run pid", os.getpid(), end=", ")
+        print("get first args", args[0], end=", ")
+        print("get second args", args[1])
+        time.sleep(random.uniform(0, 2))
+        return args[0], args[1]
+
+    def callback(self, result):
+        """
+        callback function when success
+        PLEASE NOTE: don't raise any Exception here, otherwise the process cannot exit normally
+        :param result:
+        :return:
+        """
+        print("pid", os.getpid(), "result", result[0], result[1])
+
+    def error_callback(self, error):
+        """
+        callback function when fail
+        PLEASE NOTE: don't raise any Exception here, otherwise the process cannot exit normally
+        :param error:
+        :return:
+        """
+        print("error_callback ", os.getpid(), error)
+
 
 if __name__ == '__main__':
     # get a instance of CM module (specify the process-pool size)
-    mp = MultiProcess(10)
+    mp = MultiProcess(5)
     # start the CM module
     mp.start()
     for i in range(10):
         # create a Task instance (specify Task module, timeout, args)
-        task = InfoTask("src.components.multiprocess.example.Demo", 1, (i, i))
+        task = InfoTask("example.Demo", 1, {"test": i}, {"error": i})
         # push Task to process-pool
         mp.push(task)
     # no more new Task, wait exit
     mp.stop()
-```
-### Task module
-需要交给进程池去完成的 module，包含三个部分：runnable，callback，error_callback
-
-```python
-def runnable(*args):
-    """
-    交给 worker 执行的方法
-    :param args:
-    :return:
-    """
-    pass
-
-
-def callback(*result):
-    """
-    执行成功后的调用
-    :param result:
-    :return:
-    """
-    pass
-
-
-def error_callback(error):
-    """
-    执行失败后的调用
-    :param error:
-    :return:
-    """
-    pass
 
 ```
+
 
 ## 架构和设计
 
 ### 架构图
 
-![架构图](asset/structure.png)
+![架构图](structure.png)
 
 ### 组成部分
 

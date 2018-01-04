@@ -1,7 +1,5 @@
 # Common Multiprocess Module
 
-中文请参考[这里](https://github.com/joddiy/multiprocess/tree/CN)
-
 ## Usage
 
 ### Example

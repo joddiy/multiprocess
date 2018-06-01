@@ -47,7 +47,7 @@ class MultiProcess(object):
         """
         # print("===> now start parent, PID:", os.getpid())
         # parent-process start a server process, and sub-process will be started by this server, avoid thread-unsafe
-        # set_start_method('forkserver')
+        set_start_method('forkserver')
         self.parent_conn, self.child_conn = Pipe()
         self.pro = Process(target=self._start_pool, args=(self.child_conn,))
         self.pro.start()
